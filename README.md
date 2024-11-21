@@ -34,7 +34,7 @@ sudo nano app.example.com
  
 - Isi file dengan konfigurasi berikut:
 
-
+**Opsi 1**: Untuk mengarahkan ke File
 ```nginx
 server {
     listen 80;
@@ -45,6 +45,21 @@ server {
 
     location / {
         try_files $uri $uri/ =404;
+    }
+}
+```
+**Opsi 2**: Untuk mengarahkan ke Port
+```nginx
+server {
+    listen 80;
+    server_name api.example.com;
+
+    location / {
+        proxy_pass http://localhost:8001;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
     }
 }
 ```
@@ -97,11 +112,13 @@ sudo systemctl reload nginx
 ---
 
 ### 4. **Akses Subdomain**  
-- Pastikan direktori root (`/var/www/app`) berisi file `index.html`:
+- Jika anda menggunakan Konfigurasi Opsi 1, Pastikan direktori root (`/var/www/app`) berisi file `index.html`:
 
 ```bash
 echo "<h1>Hello from app.example.com</h1>" | sudo tee /var/www/app/index.html
 ```
+
+- Jika anda menggunakan Konfigurasi Opsi 2, Pastikan anda sudah menjalankan server di Port yang ditentukan.
  
 - Akses subdomain di browser:
 `http://app.example.com`
